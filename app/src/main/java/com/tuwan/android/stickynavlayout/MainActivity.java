@@ -4,20 +4,20 @@ package com.tuwan.android.stickynavlayout;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.view.View;
 
-import com.tuwan.android.stickynavlayout.view.SimpleViewPagerIndicator;
-
+import com.tuwan.android.stickynavlayout.tablayout.CustomViewPagerTab;
+import com.tuwan.android.stickynavlayout.tablayout.SlidingTabLayout;
 
 public class MainActivity extends FragmentActivity {
-    private String[] mTitles = new String[]{"简介", "评价", "相关"};
-    private SimpleViewPagerIndicator mIndicator;
-    private ViewPager mViewPager;
+
+    public String[] mTitles = new String[]{"简介", "评价", "相关"};    //页卡标题集合
+    private SlidingTabLayout mIndicator;
+    private CustomViewPagerTab mViewPager;
     private FragmentPagerAdapter mAdapter;
-    private TabFragment[] mFragments = new TabFragment[mTitles.length];
+    public TabFragment[] mFragments = new TabFragment[mTitles.length];
+    private MyPagerAdapter mViewPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,57 +26,62 @@ public class MainActivity extends FragmentActivity {
 
         initViews();
         initDatas();
-        initEvents();
 
-    }
-
-    private void initEvents() {
-        mViewPager.setOnPageChangeListener(new OnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-            }
-
-            @Override
-            public void onPageScrolled(int position, float positionOffset,
-                                       int positionOffsetPixels) {
-                mIndicator.scroll(position, positionOffset);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            }
-        });
-    }
-
-    private void initDatas() {
-        mIndicator.setTitles(mTitles);
-
-        for (int i = 0; i < mTitles.length; i++) {
-            mFragments[i] = (TabFragment) TabFragment.newInstance(mTitles[i]);
-        }
-
-        mAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
-            @Override
-            public int getCount() {
-                return mTitles.length;
-            }
-
-            @Override
-            public Fragment getItem(int position) {
-                return mFragments[position];
-            }
-
-        };
-
-        mViewPager.setAdapter(mAdapter);
-        mViewPager.setCurrentItem(0);
     }
 
     private void initViews() {
-        mIndicator = (SimpleViewPagerIndicator) findViewById(R.id.id_stickynavlayout_indicator);
-        mViewPager = (ViewPager) findViewById(R.id.id_stickynavlayout_viewpager);
+
+        mIndicator = (SlidingTabLayout) findViewById(R.id.id_stickynavlayout_indicator);
+        mViewPager = (CustomViewPagerTab) findViewById(R.id.id_stickynavlayout_viewpager);
+
+    }
+
+    private void initDatas() {
+
+        //设置下划线的高度
+        mIndicator.setIndicatorHeight(4f);
+        mIndicator.setIndicatorWidth(70f);
+        //设置tab的字体大小
+        mIndicator.setTextsize(14f);
+        //初始化Fragment
+        for (int i = 0; i < mTitles.length; i++) {
+            mFragments[i] = (TabFragment) TabFragment.newInstance(mTitles[i]);
+        }
+        //初始化FragmentPagerAdapter
+        mViewPager.setScanScroll(true);
+        mViewPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
+        mViewPager.setAdapter(mViewPagerAdapter);
+        mIndicator.setViewPager(mViewPager);
+        //初始位置
+        mViewPager.setCurrentItem(0);
+
+    }
+
+    private class MyPagerAdapter extends FragmentPagerAdapter {
+
+        public MyPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public int getCount() {
+            return mTitles.length;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mTitles[position];
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return mFragments[position];
+        }
+
     }
 
 
 }
+
+
 
